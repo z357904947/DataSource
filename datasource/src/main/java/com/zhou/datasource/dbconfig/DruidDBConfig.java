@@ -1,20 +1,16 @@
-package com.zhou.datasource.config;
+package com.zhou.datasource.dbconfig;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -54,6 +50,11 @@ public class DruidDBConfig {
     @Value("${spring.datasource.maxWait}")
     private int maxWait;
 
+//    @Bean (name = "dynamicDataSourceAspect")
+//    public DynamicDataSourceAspect dynamicDataSourceAspect() {
+//        return org.aspectj.lang.Aspects.aspectOf(DynamicDataSourceAspect.class);
+//    }
+
     @Bean // 声明其为Bean实例
     @Primary // 在同样的DataSource中，首先使用被标注的DataSource
     @Qualifier("adiDataSource")
@@ -88,9 +89,10 @@ public class DruidDBConfig {
 
     @Bean(name = "dynamicDataSource")
     @Qualifier("dynamicDataSource")
-    public DataSource dynamicDataSource() throws SQLException {
+    public DynamicDataSource dynamicDataSource() throws SQLException {
         DynamicDataSource dynamicDataSource = new DynamicDataSource();
         dynamicDataSource.setDebug(false);
+        //配置缺省的数据源
         dynamicDataSource.setDefaultTargetDataSource(dataSource());
         Map<Object, Object> targetDataSources = new HashMap<Object, Object>();
         targetDataSources.put("adiDataSource", dataSource());
@@ -102,14 +104,24 @@ public class DruidDBConfig {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dynamicDataSource());
+        //解决驼峰命名失效
+        sqlSessionFactoryBean.setConfiguration(configuration());
         return sqlSessionFactoryBean.getObject();
     }
+//    @Bean
+//    public SqlSessionTemplate sqlSessionTemplate() throws Exception {
+//        return new SqlSessionTemplate(sqlSessionFactory());
+//    }
+
+    /**
+     * 读取驼峰命名设置
+     * @return
+     */
     @Bean
-    public SqlSessionTemplate sqlSessionTemplate() throws Exception {
-        return new SqlSessionTemplate(sqlSessionFactory());
+    @ConfigurationProperties(prefix = "mybatis.configuration")
+    public org.apache.ibatis.session.Configuration configuration(){
+        return new org.apache.ibatis.session.Configuration();
     }
-
-
 
 
 

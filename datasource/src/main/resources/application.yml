@@ -2,13 +2,16 @@ server:
   port: 80 #配置访问端口，不配置也行，默认不配置就是8080
 spring:
   datasource:
+    ###################主数据源配置#####################
     #新版mysql驱动配置方法
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/test1?nullCatalogMeansCurrent=true&characterEncoding=utf8&useSSL=false&serverTimezone=Hongkong&allowPublicKeyRetrieval=true
+    #nullCatalogMeansCurrent=true&
+    url: jdbc:mysql://127.0.0.1:3307/test1?characterEncoding=utf8&useSSL=false&serverTimezone=Hongkong&allowPublicKeyRetrieval=true
     #    driver-class-name: com.mysql.jdbc.Driver
     #    url: jdbc:mysql://192.168.1.111:3306/sfms
     username: root
     password: zhoupan888
+    ###################以上主数据源配置#####################
     driverClassName: com.mysql.cj.jdbc.Driver
     ###################以下为druid增加的配置###########################
     type: com.alibaba.druid.pool.DruidDataSource
@@ -50,4 +53,6 @@ spring:
 mybatis:
   type-aliases-package: com.zhou.datasource.model  #扫描包路径
   configuration:
-    map-underscore-to-camel-case: true #打开驼峰命名
+    map-underscore-to-camel-case: true
+  #    map-underscore-to-camel-case: true #打开驼峰命名
+
